@@ -9,58 +9,152 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.apirest.model.Usuario
 import com.example.apirest.viewModel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(viewModel: PostViewModel) {
-    val posts = viewModel.postList.collectAsState().value
+    val usuarios = viewModel.postList.collectAsState().value
+
+    var nombre by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var edad by remember { mutableStateOf("") }
+    var clave1 by remember { mutableStateOf("") }
+    var clave2 by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+
+
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Listado de Posts") }
-            )
+            TopAppBar(title = { Text("Listado de usuarios") })
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                items(posts) { post ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "Titulo: ${post.title}",
-                                style = MaterialTheme.typography.titleMedium
+
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                TextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                TextField(
+                    value = clave1,
+                    onValueChange = { clave1 = it },
+                    label = { Text("Clave1") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                TextField(
+                    value = clave2,
+                    onValueChange = { clave2 = it },
+                    label = { Text("Clave 2") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+
+                TextField(
+                    value = edad,
+                    onValueChange = { edad = it },
+                    label = { Text("Edad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                TextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.createUsuario(
+                            Usuario(
+                                nombre = nombre,
+                                edad = edad.toInt() ?: 0,
+                                email = email,
+                                clave1 = clave1,
+                                clave2 = clave2,
+                                direccion = direccion
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = post.body,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                        )
+                        nombre = ""
+                        email = ""
+                        clave1= ""
+                        clave2=""
+                        edad = ""
+                        direccion = ""
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Crear Usuario")
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                LazyColumn {
+                    items(usuarios) { usuario ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+
+                                Text("Nombre: ${usuario.nombre}", style = MaterialTheme.typography.titleMedium)
+                                Text("Email: ${usuario.email}")
+                                Text("clave1: ${usuario.clave1}")
+                                Text("clave2: ${usuario.clave2.codePoints()}")
+                                Text("Edad: ${usuario.edad}")
+                                Text("Dirección: ${usuario.direccion}")
+                            }
                         }
                     }
                 }

@@ -22,7 +22,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             ApiRestTheme {
                 val postViewModel: com.example.apirest.viewModel.PostViewModel= viewModel()
-
                 PostScreen(viewModel = postViewModel)
             }
         }
