@@ -8,7 +8,7 @@ import retrofit2.http.*
 
 interface ApiService{
     @GET("api/usuarios")
-    suspend fun getPost(): List<Usuario>
+    suspend fun getUsuario(): List<Usuario>
 
     @POST("api/usuarios")
     suspend fun createUsuario(@Body usuario: Usuario) : Usuario

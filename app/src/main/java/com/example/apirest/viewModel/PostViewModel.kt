@@ -5,13 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.apirest.repository.PostRepository
 import com.example.apirest.model.Usuario
 import com.example.apirest.remote.RetrofitInstance
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PostViewModel : ViewModel() {
-
-    private val repository = PostRepository()
+class PostViewModel(
+    private val repository: PostRepository = PostRepository(),
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
 
     private val _postUsuario = MutableStateFlow<List<Usuario>>(emptyList())
     val postList: StateFlow<List<Usuario>> = _postUsuario
@@ -23,10 +26,10 @@ class PostViewModel : ViewModel() {
         fetchUsuarios()
     }
 
-    private fun fetchUsuarios() {
-        viewModelScope.launch {
+    fun fetchUsuarios() {
+        viewModelScope.launch(dispatcher) {
             try {
-                _postUsuario.value = repository.getPost()
+                _postUsuario.value = repository.getUsuario()
             } catch (e: Exception) {
                 println("Error al obtener datos ${e.localizedMessage}")
             }
@@ -34,21 +37,35 @@ class PostViewModel : ViewModel() {
     }
 
     fun createUsuario(usuario: Usuario) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
-                val nuevoUsuario = RetrofitInstance.api.createUsuario(usuario)
-                println("Usuario creado exitosamente: $nuevoUsuario")
+                val nuevoUsuario = repository.createUsuario(usuario)
+                _createUsuario.value = nuevoUsuario
 
-                _createUsuario.value = repository.createUsuario(nuevoUsuario)
-
-                // 3. Agregar el nuevo usuario a la lista
-                val listaActual = _postUsuario.value.toMutableList()
-                listaActual.add(nuevoUsuario)
-                _postUsuario.value = listaActual
+                _postUsuario.value = _postUsuario.value + nuevoUsuario
 
             } catch (e: Exception) {
                 println("Error al crear usuario: ${e.localizedMessage}")
             }
         }
     }
+
+    fun updateUsuario(id: Int, usuario: Usuario) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                val actualizado = repository.updateUsuario(id, usuario)
+
+                _postUsuario.value = _postUsuario.value.map {
+                    if (it.id == id.toLong()) actualizado else it
+                }
+
+                println("Usuario actualizado: $actualizado")
+
+            } catch (e: Exception) {
+                println("Error al actualizar usuario: ${e.message}")
+            }
+        }
+    }
+
 }
+

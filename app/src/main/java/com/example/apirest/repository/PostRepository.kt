@@ -3,14 +3,18 @@ package com.example.apirest.repository
 import com.example.apirest.model.Usuario
 import com.example.apirest.remote.RetrofitInstance
 
-class PostRepository {
+open class PostRepository {
 
-    suspend fun getPost(): List<Usuario> {
-        return RetrofitInstance.api.getPost()
+    open suspend fun getUsuario(): List<Usuario> {
+        return RetrofitInstance.api.getUsuario()
     }
 
-    suspend fun createUsuario(usuario: Usuario): Usuario {
+    open suspend fun createUsuario(usuario: Usuario): Usuario {
         return RetrofitInstance.api.createUsuario(usuario)
+    }
+
+    open suspend fun updateUsuario(id: Int, usuario: Usuario): Usuario {
+        return RetrofitInstance.api.updateUsuario(id, usuario)
     }
 
 
